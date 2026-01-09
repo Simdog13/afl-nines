@@ -240,7 +240,7 @@ func _ai_chase_ball(unit: Unit) -> void:
 		return
 
 	# Check if ball is in our zone (we can't leave our zone)
-	var ball_zone = Enums.get_zone_for_position(ball_pos, unit.team)
+	var ball_zone = Enums.get_zone_at_x(ball_pos.x, unit.team)
 	if ball_zone != unit.zone:
 		# Ball is in another zone, don't chase
 		return
@@ -287,7 +287,7 @@ func _get_next_step_toward(from: Vector2i, to: Vector2i, zone: Enums.Zone, team:
 	var next_pos = Vector2i(from.x + dx, from.y)
 
 	# Check if horizontal move is valid and in zone
-	if Constants.is_valid_grid_pos(next_pos) and Enums.get_zone_for_position(next_pos, team) == zone:
+	if Constants.is_valid_grid_pos(next_pos) and Enums.get_zone_at_x(next_pos.x, team) == zone:
 		if GridManager.is_cell_free(next_pos):
 			return next_pos
 
@@ -295,7 +295,7 @@ func _get_next_step_toward(from: Vector2i, to: Vector2i, zone: Enums.Zone, team:
 	next_pos = Vector2i(from.x, from.y + dy)
 
 	# Check if vertical move is valid and in zone
-	if Constants.is_valid_grid_pos(next_pos) and Enums.get_zone_for_position(next_pos, team) == zone:
+	if Constants.is_valid_grid_pos(next_pos) and Enums.get_zone_at_x(next_pos.x, team) == zone:
 		if GridManager.is_cell_free(next_pos):
 			return next_pos
 
