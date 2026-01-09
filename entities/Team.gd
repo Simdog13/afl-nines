@@ -164,7 +164,7 @@ func set_starting_positions() -> void:
 			# HOME team attacks RIGHT (toward x=31)
 			# Defenders on left (low x), Forwards on right (high x)
 			match unit.position:
-				# Defenders - in defensive zone (x 0-10), offset from AWAY forwards
+				# Defenders - in defensive zone (x 0-10)
 				Enums.Position.FULL_BACK:
 					pos = Vector2i(3, y_mid)      # Deep, center
 				Enums.Position.CENTRE_BACK:
@@ -174,47 +174,47 @@ func set_starting_positions() -> void:
 
 				# Midfielders - in midfield zone (x 11-21)
 				Enums.Position.CENTRE:
-					pos = Vector2i(15, y_mid)     # Near center, ready for bounce
+					pos = Vector2i(14, y_mid)     # Near center, ready for bounce
 				Enums.Position.WING_LEFT:
-					pos = Vector2i(13, y_top)     # Left wing
+					pos = Vector2i(12, y_top)     # Left wing
 				Enums.Position.WING_RIGHT:
-					pos = Vector2i(13, y_bot)     # Right wing
+					pos = Vector2i(12, y_bot)     # Right wing
 
-				# Forwards - in forward zone (x 22-31), offset from AWAY defenders
+				# Forwards - in forward zone (x 22-31)
 				Enums.Position.FULL_FORWARD:
-					pos = Vector2i(28, y_mid)     # Deep forward, center
+					pos = Vector2i(27, y_mid)     # Deep forward, center
 				Enums.Position.CENTRE_FORWARD:
-					pos = Vector2i(25, y_mid + 2) # Leading forward
+					pos = Vector2i(24, y_mid + 2) # Leading forward
 				Enums.Position.FORWARD_FLANKER:
-					pos = Vector2i(26, y_top)     # Forward flank
+					pos = Vector2i(25, y_top)     # Forward flank
 
 		else:
 			# AWAY team attacks LEFT (toward x=0)
 			# Defenders on right (high x), Forwards on left (low x)
 			match unit.position:
-				# Defenders - in defensive zone (right side for AWAY)
+				# Defenders - in defensive zone (right side for AWAY, x 22-31)
 				Enums.Position.FULL_BACK:
 					pos = Vector2i(28, y_mid)     # Deep, center
 				Enums.Position.CENTRE_BACK:
-					pos = Vector2i(25, y_mid + 2) # Higher up, offset from HOME forward
+					pos = Vector2i(25, y_mid - 2) # Higher up
 				Enums.Position.BACK_FLANKER:
-					pos = Vector2i(26, y_top)     # Flank, offset from HOME flanker
+					pos = Vector2i(26, y_bot)     # Flank
 
 				# Midfielders - in midfield zone (x 11-21)
 				Enums.Position.CENTRE:
-					pos = Vector2i(16, y_mid)     # Near center, opposite HOME centre
+					pos = Vector2i(17, y_mid)     # Near center, opposite HOME centre
 				Enums.Position.WING_LEFT:
-					pos = Vector2i(18, y_top)     # Wing positions offset from HOME
+					pos = Vector2i(19, y_top)     # Wing positions offset from HOME
 				Enums.Position.WING_RIGHT:
-					pos = Vector2i(18, y_bot)
+					pos = Vector2i(19, y_bot)
 
-				# Forwards - in forward zone (left side for AWAY)
+				# Forwards - in forward zone (left side for AWAY, x 0-10)
 				Enums.Position.FULL_FORWARD:
-					pos = Vector2i(3, y_mid)      # Deep forward - offset from HOME defender
+					pos = Vector2i(4, y_mid)      # Deep forward
 				Enums.Position.CENTRE_FORWARD:
-					pos = Vector2i(6, y_mid + 2)  # Offset from HOME centre back
+					pos = Vector2i(7, y_mid + 2)  # Leading forward
 				Enums.Position.FORWARD_FLANKER:
-					pos = Vector2i(5, y_bot)      # Offset from HOME flanker
+					pos = Vector2i(6, y_top)      # Forward flank
 
 		unit.set_grid_position(pos)
 

@@ -235,8 +235,8 @@ func _ai_chase_ball(unit: Unit) -> void:
 	# Calculate distance to ball
 	var distance = Constants.grid_distance(unit_pos, ball_pos)
 
-	# Only chase if ball is reasonably close (within 8 cells)
-	if distance > 8:
+	# Only chase if ball is reasonably close (within 12 cells)
+	if distance > 12:
 		return
 
 	# Check if ball is in our zone (we can't leave our zone)
@@ -249,7 +249,10 @@ func _ai_chase_ball(unit: Unit) -> void:
 	var next_pos = _get_next_step_toward(unit_pos, ball_pos, unit.zone, unit.team)
 
 	if next_pos != unit_pos:
-		GridManager.move_unit(unit, next_pos)
+		var moved = GridManager.move_unit(unit, next_pos)
+		# If we moved successfully, check if we landed on the ball
+		if moved:
+			_try_pickup_ball(unit)
 
 
 ## AI: Kick the ball forward toward opponent's goal
