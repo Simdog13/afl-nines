@@ -236,6 +236,33 @@ const PICKUP_RANGE: int = 0  # Must be on same cell
 
 
 # ===========================================
+# VISUAL/RENDERING CONFIGURATION
+# ===========================================
+# Colors and sizes for visual representation
+
+# Unit (player) visual size in pixels
+const UNIT_SIZE: int = 48
+
+# Ball visual size in pixels
+const BALL_SIZE: int = 24
+
+# Field and line colors
+const COLOR_FIELD: Color = Color(0.2, 0.5, 0.2)
+const COLOR_ZONE_LINE: Color = Color(1, 1, 1, 0.3)
+const COLOR_CENTER_CIRCLE: Color = Color(1, 1, 1, 0.5)
+const COLOR_GOAL: Color = Color(1, 1, 1, 0.2)
+
+# Team colors
+const COLOR_HOME_TEAM: Color = Color(0.2, 0.4, 0.9)
+const COLOR_AWAY_TEAM: Color = Color(0.9, 0.3, 0.2)
+
+# Ball colors
+const COLOR_BALL: Color = Color(0.95, 0.6, 0.2)
+const COLOR_HOME_BALL: Color = Color(0.4, 0.6, 1.0)
+const COLOR_AWAY_BALL: Color = Color(1.0, 0.5, 0.4)
+
+
+# ===========================================
 # UTILITY FUNCTIONS
 # ===========================================
 # These helper functions convert between grid and pixel coordinates.

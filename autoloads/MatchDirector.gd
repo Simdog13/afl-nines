@@ -217,8 +217,11 @@ func _end_match() -> void:
 	if winner == Enums.TeamID.NONE:
 		Debug.log_info("MatchDirector", "Result: DRAW!")
 	else:
-		var winner_name = GameManager.home_team.team_name if winner == Enums.TeamID.HOME else GameManager.away_team.team_name
-		Debug.log_info("MatchDirector", "Winner: %s" % winner_name)
+		var winner_team = GameManager.home_team if winner == Enums.TeamID.HOME else GameManager.away_team
+		if winner_team:
+			Debug.log_info("MatchDirector", "Winner: %s" % winner_team.team_name)
+		else:
+			Debug.log_warning("MatchDirector", "Winner team is null")
 	
 	# Pause the simulation
 	GameManager.pause_simulation()

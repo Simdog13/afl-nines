@@ -78,13 +78,13 @@ const MAX_HISTORY_SIZE: int = 100
 # These are set by the scene that sets up the game
 
 ## Reference to home team
-var home_team = null
+var home_team: Team = null
 
 ## Reference to away team
-var away_team = null
+var away_team: Team = null
 
 ## Reference to the ball
-var ball = null
+var ball: Ball = null
 
 
 # ===========================================
@@ -228,25 +228,32 @@ func _check_scoring() -> void:
 func _register_score(team: Enums.TeamID, score_type: Enums.ScoreType) -> void:
 	var points = 6 if score_type == Enums.ScoreType.GOAL else 1
 	var scoring_team = home_team if team == Enums.TeamID.HOME else away_team
-	
-	if scoring_team:
-		if score_type == Enums.ScoreType.GOAL:
-			scoring_team.add_goal()
-		else:
-			scoring_team.add_behind()
-	
+
+	# Validate team exists
+	if scoring_team == null:
+		Debug.log_error("GameManager", "Cannot register score - team is null")
+		return
+
+	# Update team score
+	if score_type == Enums.ScoreType.GOAL:
+		scoring_team.add_goal()
+	else:
+		scoring_team.add_behind()
+
 	# Emit scoring event
 	EventBus.score_registered.emit(team, score_type, points)
-	
+
 	Debug.log_info("GameManager", "%s %s! (%d points)" % [
-		scoring_team.team_name if scoring_team else "Team",
+		scoring_team.team_name,
 		"GOAL" if score_type == Enums.ScoreType.GOAL else "Behind",
 		points
 	])
-	
+
 	# Reset ball to center (MatchDirector will handle the stoppage)
 	if ball:
 		ball.reset_to_center()
+	else:
+		Debug.log_warning("GameManager", "Cannot reset ball after score - ball is null")
 
 
 # ===========================================

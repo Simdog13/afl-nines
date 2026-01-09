@@ -217,14 +217,29 @@ func make_loose_air(from_pos: Vector2i, to_pos: Vector2i,
 	last_touch_team = kicker.team
 	possessing_unit = null
 	
+	# Validate inputs
+	if kicker == null:
+		Debug.log_error("Ball", "Cannot start flight with null kicker")
+		return
+
+	if not Constants.is_valid_grid_pos(from_pos) or not Constants.is_valid_grid_pos(to_pos):
+		Debug.log_error("Ball", "Cannot start flight with invalid positions: %s -> %s" % [from_pos, to_pos])
+		return
+
 	# Set up flight
 	flight_start_position = from_pos
 	grid_position = from_pos  # Ball starts at kicker
 	target_position = to_pos
-	
+
 	# Calculate flight time based on distance and type
 	var distance = Constants.grid_distance(from_pos, to_pos)
 	var speed = Constants.BALL_SPEED_KICK if disposal_type == Enums.Action.KICK else Constants.BALL_SPEED_HANDBALL
+
+	# Validate speed
+	if speed <= 0:
+		Debug.log_error("Ball", "Invalid ball speed: %f" % speed)
+		return
+
 	flight_ticks_total = maxi(1, int(ceil(float(distance) / speed)))
 	flight_ticks_elapsed = 0
 	

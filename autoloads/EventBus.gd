@@ -98,11 +98,11 @@ signal score_registered(team: int, score_type: int, points: int)
 
 ## Emitted when a goal is scored (convenience signal, also triggers score_registered)
 ## Parameters: team (Enums.Team), scorer_unit (Unit or null)
-signal goal_scored(team: int, scorer_unit: Node)
+signal goal_scored(team: int, scorer_unit: Unit)
 
 ## Emitted when a behind is scored
 ## Parameters: team (Enums.Team), scorer_unit (Unit or null, null if rushed)
-signal behind_scored(team: int, scorer_unit: Node)
+signal behind_scored(team: int, scorer_unit: Unit)
 
 
 # ===========================================
@@ -119,9 +119,9 @@ signal ball_state_changed(new_state: int, old_state: int)
 signal ball_position_changed(new_pos: Vector2i, old_pos: Vector2i)
 
 ## Emitted when possession changes
-## Parameters: new_owner (Unit or null), old_owner (Unit or null), 
+## Parameters: new_owner (Unit or null), old_owner (Unit or null),
 ##             quality (Enums.PossessionQuality)
-signal possession_changed(new_owner: Node, old_owner: Node, quality: int)
+signal possession_changed(new_owner: Unit, old_owner: Unit, quality: int)
 
 ## Emitted when ball enters a scoring zone
 ## Parameters: zone_type (String: "goal" or "behind"), team_scoring (Enums.Team)
@@ -139,27 +139,27 @@ signal ball_out_of_bounds(position: Vector2i, last_touch_team: int)
 
 ## Emitted when a unit starts an action
 ## Parameters: unit (Unit), action (Enums.Action)
-signal unit_action_started(unit: Node, action: int)
+signal unit_action_started(unit: Unit, action: int)
 
 ## Emitted when a unit completes an action
 ## Parameters: unit (Unit), action (Enums.Action), success (bool)
-signal unit_action_completed(unit: Node, action: int, success: bool)
+signal unit_action_completed(unit: Unit, action: int, success: bool)
 
 ## Emitted when a unit's state changes
 ## Parameters: unit (Unit), new_state (Enums.UnitState), old_state (Enums.UnitState)
-signal unit_state_changed(unit: Node, new_state: int, old_state: int)
+signal unit_state_changed(unit: Unit, new_state: int, old_state: int)
 
 ## Emitted when a unit moves to a new cell
 ## Parameters: unit (Unit), new_pos (Vector2i), old_pos (Vector2i)
-signal unit_moved(unit: Node, new_pos: Vector2i, old_pos: Vector2i)
+signal unit_moved(unit: Unit, new_pos: Vector2i, old_pos: Vector2i)
 
 ## Emitted when a unit's stamina changes significantly
 ## Parameters: unit (Unit), new_stamina (int), old_stamina (int)
-signal unit_stamina_changed(unit: Node, new_stamina: int, old_stamina: int)
+signal unit_stamina_changed(unit: Unit, new_stamina: int, old_stamina: int)
 
 ## Emitted when a unit becomes exhausted (stamina critical)
 ## Parameters: unit (Unit)
-signal unit_exhausted(unit: Node)
+signal unit_exhausted(unit: Unit)
 
 
 # ===========================================
@@ -169,11 +169,11 @@ signal unit_exhausted(unit: Node)
 
 ## Emitted when a disposal (kick/handball) is attempted
 ## Parameters: unit (Unit), action (Enums.Action), target_pos (Vector2i)
-signal disposal_attempted(unit: Node, action: int, target_pos: Vector2i)
+signal disposal_attempted(unit: Unit, action: int, target_pos: Vector2i)
 
 ## Emitted when a disposal is completed with result
 ## Parameters: unit (Unit), action (Enums.Action), outcome (Enums.DisposalOutcome)
-signal disposal_completed(unit: Node, action: int, outcome: int)
+signal disposal_completed(unit: Unit, action: int, outcome: int)
 
 
 # ===========================================
@@ -187,15 +187,15 @@ signal contest_started(units: Array, position: Vector2i)
 
 ## Emitted when a contest resolves
 ## Parameters: winner (Unit or null), position (Vector2i)
-signal contest_resolved(winner: Node, position: Vector2i)
+signal contest_resolved(winner: Unit, position: Vector2i)
 
 ## Emitted when a tackle is attempted
 ## Parameters: tackler (Unit), target (Unit), success (bool)
-signal tackle_attempted(tackler: Node, target: Node, success: bool)
+signal tackle_attempted(tackler: Unit, target: Unit, success: bool)
 
 ## Emitted when a mark is attempted
 ## Parameters: marker (Unit), position (Vector2i), success (bool)
-signal mark_attempted(marker: Node, position: Vector2i, success: bool)
+signal mark_attempted(marker: Unit, position: Vector2i, success: bool)
 
 
 # ===========================================
