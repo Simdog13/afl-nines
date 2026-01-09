@@ -169,13 +169,16 @@ func _process_tick() -> void:
 func _process_ball() -> void:
 	if ball == null:
 		return
-	
+
 	# If ball is in flight, advance it
 	if ball.is_in_flight():
 		var still_flying = ball.process_flight_tick()
 		if not still_flying:
 			# Ball has landed - it's now loose on ground
 			ball.make_loose_ground(ball.grid_position)
+
+			# Check if any unit is on this cell - they automatically pick it up
+			_try_auto_pickup_at_landing()
 
 
 ## Process all units
@@ -192,24 +195,144 @@ func _process_units() -> void:
 
 
 ## Process a single unit's turn
-func _process_unit(unit) -> void:
+func _process_unit(unit: Unit) -> void:
 	# Skip invalid units
 	if unit == null:
 		return
-	
-	# For now, just handle stamina recovery when idle
-	# Full AI decision making will be in AIController (Phase 4)
+
 	match unit.state:
 		Enums.UnitState.IDLE:
-			# Recover stamina when idle
-			unit.recover_stamina(Constants.STAMINA_RECOVERY_RATE)
-		
+			_process_idle_unit(unit)
+
 		Enums.UnitState.MOVING:
 			# If unit was moving, check if arrived
 			if unit.grid_position == unit.target_position:
 				unit.arrive_at_target()
-		
-		# Other states will be handled by AIController
+				# Check if we arrived at the ball - pick it up
+				_try_pickup_ball(unit)
+
+
+## Process AI for an idle unit
+func _process_idle_unit(unit: Unit) -> void:
+	# Recover stamina when idle
+	unit.recover_stamina(Constants.STAMINA_RECOVERY_RATE)
+
+	# If unit has the ball, try to kick it forward
+	if unit.has_ball:
+		_ai_kick_ball(unit)
+		return
+
+	# If ball is loose on the ground, try to get it
+	if ball and ball.state == Enums.BallState.LOOSE_GROUND:
+		_ai_chase_ball(unit)
+
+
+## AI: Chase the loose ball
+func _ai_chase_ball(unit: Unit) -> void:
+	var ball_pos = ball.grid_position
+	var unit_pos = unit.grid_position
+
+	# Calculate distance to ball
+	var distance = Constants.grid_distance(unit_pos, ball_pos)
+
+	# Only chase if ball is reasonably close (within 8 cells)
+	if distance > 8:
+		return
+
+	# Check if ball is in our zone (we can't leave our zone)
+	var ball_zone = Enums.get_zone_for_position(ball_pos, unit.team)
+	if ball_zone != unit.zone:
+		# Ball is in another zone, don't chase
+		return
+
+	# Move toward the ball (one cell at a time)
+	var next_pos = _get_next_step_toward(unit_pos, ball_pos, unit.zone, unit.team)
+
+	if next_pos != unit_pos:
+		GridManager.move_unit(unit, next_pos)
+
+
+## AI: Kick the ball forward toward opponent's goal
+func _ai_kick_ball(unit: Unit) -> void:
+	# Determine which direction to kick based on team
+	var target_x = Constants.GOAL_RIGHT_X if unit.team == Enums.TeamID.HOME else Constants.GOAL_LEFT_X
+	var target_y = Constants.FIELD_CENTER_Y  # Aim for center
+
+	# Kick toward goal, but not too far (use half max distance)
+	var max_distance = Constants.KICK_DISTANCE_MAX / 2
+	var current_pos = unit.grid_position
+
+	# Calculate kick target
+	var direction_x = 1 if unit.team == Enums.TeamID.HOME else -1
+	var kick_target = Vector2i(
+		current_pos.x + (direction_x * max_distance),
+		target_y
+	)
+
+	# Clamp to field bounds
+	kick_target.x = clampi(kick_target.x, 0, Constants.GRID_WIDTH - 1)
+	kick_target.y = clampi(kick_target.y, 0, Constants.GRID_HEIGHT - 1)
+
+	# Execute the kick
+	ball.start_flight(unit, current_pos, kick_target, Enums.Action.KICK)
+	unit.has_ball = false
+
+
+## Get the next step toward a target position (simple pathfinding)
+func _get_next_step_toward(from: Vector2i, to: Vector2i, zone: Enums.Zone, team: Enums.TeamID) -> Vector2i:
+	var dx = sign(to.x - from.x)
+	var dy = sign(to.y - from.y)
+
+	# Try moving horizontally first (more important in AFL)
+	var next_pos = Vector2i(from.x + dx, from.y)
+
+	# Check if horizontal move is valid and in zone
+	if Constants.is_valid_grid_pos(next_pos) and Enums.get_zone_for_position(next_pos, team) == zone:
+		if GridManager.is_cell_free(next_pos):
+			return next_pos
+
+	# Try moving vertically
+	next_pos = Vector2i(from.x, from.y + dy)
+
+	# Check if vertical move is valid and in zone
+	if Constants.is_valid_grid_pos(next_pos) and Enums.get_zone_for_position(next_pos, team) == zone:
+		if GridManager.is_cell_free(next_pos):
+			return next_pos
+
+	# Can't move, stay in place
+	return from
+
+
+## Try to pick up the ball if unit is on same cell
+func _try_pickup_ball(unit: Unit) -> void:
+	if ball == null or unit == null:
+		return
+
+	# Check if unit is on the same cell as the ball
+	if unit.grid_position == ball.grid_position and ball.state == Enums.BallState.LOOSE_GROUND:
+		ball.give_to_unit(unit, Enums.PossessionQuality.CLEAN)
+		Debug.log_info("GameManager", "%s picked up the ball!" % unit.player_name)
+
+
+## Try to automatically pick up ball when it lands (if unit is already there)
+func _try_auto_pickup_at_landing() -> void:
+	if ball == null:
+		return
+
+	var ball_pos = ball.grid_position
+
+	# Check all units to see if any are on the landing spot
+	for unit in home_team.units:
+		if unit.grid_position == ball_pos:
+			ball.give_to_unit(unit, Enums.PossessionQuality.CLEAN)
+			Debug.log_info("GameManager", "%s caught the ball!" % unit.player_name)
+			return
+
+	for unit in away_team.units:
+		if unit.grid_position == ball_pos:
+			ball.give_to_unit(unit, Enums.PossessionQuality.CLEAN)
+			Debug.log_info("GameManager", "%s caught the ball!" % unit.player_name)
+			return
 
 
 ## Check if a score should be registered
@@ -410,11 +533,13 @@ func ready_simulation() -> void:
 	if away_team:
 		away_team.set_starting_positions()
 		_register_team_on_grid(away_team)
-	
-	# Reset ball to center
+
+	# Reset ball to center and make it loose for center bounce
 	if ball:
 		ball.reset_to_center()
-	
+		# Start with ball loose on ground so players can contest it
+		ball.make_loose_ground(ball.grid_position)
+
 	state = Enums.SimState.READY
 	Debug.log_info("GameManager", "Simulation ready")
 
