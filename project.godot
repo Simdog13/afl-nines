@@ -15,6 +15,15 @@ run/main_scene="uid://2q37jy8wivey"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=2048
+window/size/viewport_height=1600
+window/size/mode=2
+window/size/resizable=true
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+
 [autoload]
 
 Constants="*res://autoloads/Constants.gd"
