@@ -364,7 +364,7 @@ func distance_to_position(pos: Vector2i) -> int:
 
 ## Get a summary string (for debugging)
 func get_summary() -> String:
-	return "%s [%s] @ %s | HP:%d%% | Ball:%s | State:%s" % [
+	return "%s [%s] @ %s | Stamina:%d%% | Ball:%s | State:%s" % [
 		player_name,
 		Enums.Position.keys()[position],
 		grid_position,
