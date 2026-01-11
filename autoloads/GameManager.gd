@@ -196,20 +196,91 @@ func _process_unit(unit) -> void:
 	# Skip invalid units
 	if unit == null:
 		return
-	
-	# For now, just handle stamina recovery when idle
-	# Full AI decision making will be in AIController (Phase 4)
-	match unit.state:
-		Enums.UnitState.IDLE:
-			# Recover stamina when idle
-			unit.recover_stamina(Constants.STAMINA_RECOVERY_RATE)
-		
-		Enums.UnitState.MOVING:
-			# If unit was moving, check if arrived
-			if unit.grid_position == unit.target_position:
-				unit.arrive_at_target()
-		
-		# Other states will be handled by AIController
+
+	# Basic AI implementation
+	# This is a simple placeholder until full AIController is implemented
+
+	# Handle movement completion
+	if unit.state == Enums.UnitState.MOVING:
+		if unit.grid_position == unit.target_position:
+			unit.arrive_at_target()
+		return
+
+	# Only idle units make decisions
+	if unit.state != Enums.UnitState.IDLE:
+		return
+
+	# Recover stamina when idle
+	unit.recover_stamina(Constants.STAMINA_RECOVERY_RATE)
+
+	# Check if unit can pick up loose ball
+	if ball.state == Enums.BallState.LOOSE_GROUND:
+		if unit.grid_position == ball.grid_position:
+			# Pick up the ball!
+			ball.give_to_unit(unit)
+			return
+
+	# If unit has ball, kick it toward goal
+	if unit.has_ball:
+		_ai_kick_ball(unit)
+		return
+
+	# If ball is loose, move toward it
+	if ball.state == Enums.BallState.LOOSE_GROUND or ball.state == Enums.BallState.LOOSE_AIR:
+		_ai_move_toward_ball(unit)
+		return
+
+
+## Simple AI: Kick ball toward opponent's goal
+func _ai_kick_ball(unit: Unit) -> void:
+	# Determine which goal to attack based on team
+	var target_x = Constants.GOAL_RIGHT_X if unit.team == Enums.TeamID.HOME else Constants.GOAL_LEFT_X
+	var target_y = Constants.FIELD_CENTER_Y  # Aim for center of goal
+
+	var target_pos = Vector2i(target_x, target_y)
+
+	# Make sure target is valid
+	if not Constants.is_valid_grid_pos(target_pos):
+		return
+
+	# Kick the ball!
+	ball.make_loose_air(
+		unit.grid_position,
+		target_pos,
+		Enums.Action.KICK,
+		unit,
+		null
+	)
+
+	# Spend stamina
+	unit.spend_stamina(Constants.STAMINA_COST_KICK)
+
+
+## Simple AI: Move one cell toward ball
+func _ai_move_toward_ball(unit: Unit) -> void:
+	var ball_pos = ball.grid_position
+	var unit_pos = unit.grid_position
+
+	# Calculate direction to ball
+	var dx = sign(ball_pos.x - unit_pos.x)
+	var dy = sign(ball_pos.y - unit_pos.y)
+
+	# Try to move toward ball (prefer horizontal movement)
+	var target_pos = unit_pos
+	if dx != 0:
+		target_pos = Vector2i(unit_pos.x + dx, unit_pos.y)
+	elif dy != 0:
+		target_pos = Vector2i(unit_pos.x, unit_pos.y + dy)
+
+	# Validate move is in bounds and in their zone
+	if not Constants.is_valid_grid_pos(target_pos):
+		return
+	if not Enums.is_in_correct_zone(target_pos.x, unit.zone, unit.team):
+		return
+
+	# Move toward ball
+	unit.set_grid_position(target_pos)
+	unit.spend_stamina(Constants.STAMINA_COST_MOVE)
 
 
 ## Check if a score should be registered

@@ -143,12 +143,18 @@ func _start_quarter() -> void:
 		2: match_state = Enums.MatchState.QUARTER_2
 		3: match_state = Enums.MatchState.QUARTER_3
 		4: match_state = Enums.MatchState.QUARTER_4
-	
+
 	# Reset quarter timer
 	quarter_time_remaining = Constants.QUARTER_DURATION_SECONDS
 	is_clock_running = true
 	is_stoppage = false
-	
+
+	# Make ball loose at center for play to begin (center bounce)
+	if GameManager.ball:
+		var center = Vector2i(Constants.FIELD_CENTER_X, Constants.FIELD_CENTER_Y)
+		GameManager.ball.make_loose_ground(center)
+		Debug.log_info("MatchDirector", "Ball bounced at center")
+
 	EventBus.quarter_started.emit(current_quarter)
 	Debug.log_info("MatchDirector", "=== QUARTER %d START ===" % current_quarter)
 	Debug.log_info("MatchDirector", "Time: %.0f seconds" % quarter_time_remaining)
