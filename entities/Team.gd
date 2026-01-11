@@ -212,7 +212,7 @@ func set_starting_positions() -> void:
 
 				# Midfielders - in midfield zone (x 11-21)
 				Enums.Position.CENTRE:
-					pos = Vector2i(16, y_mid)     # Near center, opposite HOME centre
+					pos = Vector2i(17, y_mid)     # Near center, opposite HOME centre (avoid ball conflict at 16,12)
 				Enums.Position.WING_LEFT:
 					pos = Vector2i(18, y_top)     # Wing positions offset from HOME
 				Enums.Position.WING_RIGHT:

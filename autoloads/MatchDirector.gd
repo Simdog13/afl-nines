@@ -148,7 +148,13 @@ func _start_quarter() -> void:
 	quarter_time_remaining = Constants.QUARTER_DURATION_SECONDS
 	is_clock_running = true
 	is_stoppage = false
-	
+
+	# Make ball loose at center for the bounce
+	if GameManager.ball:
+		var center = Vector2i(Constants.FIELD_CENTER_X, Constants.FIELD_CENTER_Y)
+		GameManager.ball.make_loose_ground(center)
+		Debug.log_debug("MatchDirector", "Ball bounced at center to start quarter")
+
 	EventBus.quarter_started.emit(current_quarter)
 	Debug.log_info("MatchDirector", "=== QUARTER %d START ===" % current_quarter)
 	Debug.log_info("MatchDirector", "Time: %.0f seconds" % quarter_time_remaining)
