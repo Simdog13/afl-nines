@@ -196,19 +196,33 @@ func _process_unit(unit) -> void:
 	# Skip invalid units
 	if unit == null:
 		return
-	
-	# For now, just handle stamina recovery when idle
-	# Full AI decision making will be in AIController (Phase 4)
+
+	# Simple AI: if idle and ball is loose, move toward it
+	if unit.state == Enums.UnitState.IDLE and ball:
+		if ball.state == Enums.BallState.LOOSE_GROUND:
+			# Try to pick up loose ball if on same cell
+			if unit.grid_position == ball.grid_position:
+				ball.give_to_unit(unit, Enums.PossessionQuality.CLEAN)
+			else:
+				# Move toward loose ball
+				unit.start_move_to(ball.grid_position)
+
+	# Process unit state
 	match unit.state:
 		Enums.UnitState.IDLE:
 			# Recover stamina when idle
 			unit.recover_stamina(Constants.STAMINA_RECOVERY_RATE)
-		
+
 		Enums.UnitState.MOVING:
-			# If unit was moving, check if arrived
+			# Check if already at target
 			if unit.grid_position == unit.target_position:
 				unit.arrive_at_target()
-		
+			else:
+				# Advance unit toward target
+				var next_step = GridManager.get_step_toward(unit.grid_position, unit.target_position)
+				if next_step != unit.grid_position:
+					GridManager.move_unit(unit, next_step)
+
 		# Other states will be handled by AIController
 
 
