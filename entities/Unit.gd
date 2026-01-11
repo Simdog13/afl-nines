@@ -225,16 +225,18 @@ func start_move_to(target: Vector2i) -> bool:
 	if not Constants.is_valid_grid_pos(target):
 		Debug.log_warn("Unit", "%s tried to move to invalid position %s" % [player_name, target])
 		return false
-	
+
+	# TODO: Re-enable zone restrictions once AI is more sophisticated
+	# For now, allow free movement so basic AI can chase the ball
 	# Check if target is in our allowed zone
-	if not Enums.is_in_correct_zone(target.x, zone, team):
-		Debug.log_warn("Unit", "%s cannot move to %s - outside their zone" % [player_name, target])
-		return false
-	
+	#if not Enums.is_in_correct_zone(target.x, zone, team):
+	#	Debug.log_warn("Unit", "%s cannot move to %s - outside their zone" % [player_name, target])
+	#	return false
+
 	target_position = target
 	is_moving = true
 	state = Enums.UnitState.MOVING
-	
+
 	return true
 
 

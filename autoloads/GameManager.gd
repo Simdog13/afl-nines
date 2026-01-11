@@ -197,11 +197,17 @@ func _process_unit(unit) -> void:
 	if unit == null:
 		return
 
-	# Simple AI: if idle and ball is loose, move toward it
-	if unit.state == Enums.UnitState.IDLE and ball:
-		if ball.state == Enums.BallState.LOOSE_GROUND:
-			# Try to pick up loose ball if on same cell
+	# Simple AI decision making
+	if unit.state == Enums.UnitState.IDLE:
+		if unit.has_ball:
+			# If we have the ball, run toward our goal
+			var goal_x = Constants.GOAL_RIGHT_X if unit.team == Enums.TeamID.HOME else Constants.GOAL_LEFT_X
+			var goal_target = Vector2i(goal_x, Constants.FIELD_CENTER_Y)
+			unit.start_move_to(goal_target)
+		elif ball and ball.state == Enums.BallState.LOOSE_GROUND:
+			# If ball is loose, move toward it
 			if unit.grid_position == ball.grid_position:
+				# Pick up ball if we're on it
 				ball.give_to_unit(unit, Enums.PossessionQuality.CLEAN)
 			else:
 				# Move toward loose ball

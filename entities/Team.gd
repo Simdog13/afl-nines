@@ -204,11 +204,11 @@ func set_starting_positions() -> void:
 			match unit.position:
 				# Defenders - in defensive zone (right side for AWAY)
 				Enums.Position.FULL_BACK:
-					pos = Vector2i(28, y_mid)     # Deep, center
+					pos = Vector2i(28, y_mid + 1)     # Deep, center (offset from HOME forward)
 				Enums.Position.CENTRE_BACK:
-					pos = Vector2i(25, y_mid + 2) # Higher up, offset from HOME forward
+					pos = Vector2i(25, y_mid - 2)     # Higher up, offset from HOME forward
 				Enums.Position.BACK_FLANKER:
-					pos = Vector2i(26, y_top)     # Flank, offset from HOME flanker
+					pos = Vector2i(26, y_top + 1)     # Flank, offset from HOME flanker
 
 				# Midfielders - in midfield zone (x 11-21)
 				Enums.Position.CENTRE:
@@ -220,11 +220,11 @@ func set_starting_positions() -> void:
 
 				# Forwards - in forward zone (left side for AWAY)
 				Enums.Position.FULL_FORWARD:
-					pos = Vector2i(3, y_mid)      # Deep forward - offset from HOME defender
+					pos = Vector2i(3, y_mid + 1)      # Deep forward - offset from HOME defender
 				Enums.Position.CENTRE_FORWARD:
-					pos = Vector2i(6, y_mid + 2)  # Offset from HOME centre back
+					pos = Vector2i(6, y_mid - 2)      # Offset from HOME centre back
 				Enums.Position.FORWARD_FLANKER:
-					pos = Vector2i(5, y_bot)      # Offset from HOME flanker
+					pos = Vector2i(5, y_bot - 1)      # Offset from HOME flanker
 
 		unit.set_grid_position(pos)
 
