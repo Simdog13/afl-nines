@@ -255,6 +255,12 @@ func _end_stoppage() -> void:
 		# Resume normal play
 		is_clock_running = true
 
+		# Restart play with ball-up at center
+		if GameManager.ball:
+			var center = Vector2i(Constants.FIELD_CENTER_X, Constants.FIELD_CENTER_Y)
+			GameManager.ball.make_loose_ground(center)
+			Debug.log_debug("MatchDirector", "Ball-up at center to resume play")
+
 
 # ===========================================
 # EVENT HANDLERS
