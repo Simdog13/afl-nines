@@ -10,6 +10,14 @@ var ball
 var unit_visuals: Dictionary = {}
 var ball_visual: ColorRect
 
+# UI nodes
+var start_pause_button: Button
+var step_button: Button
+var reset_button: Button
+var speed_1_button: Button
+var speed_2_button: Button
+var speed_4_button: Button
+
 # Colors
 const COLOR_FIELD = Color(0.2, 0.5, 0.2)
 const COLOR_ZONE_LINE = Color(1, 1, 1, 0.3)
@@ -28,22 +36,25 @@ const CELL_SIZE = 64
 
 func _ready() -> void:
 	get_window().title = "AFL Nines"
-	
+
 	_create_game_entities()
 	GameManager.setup_game(home_team, away_team, ball)
-	
+
 	_draw_field()
 	_create_unit_visuals()
 	_create_ball_visual()
-	
+	_setup_ui_buttons()
+
 	GameManager.ready_simulation()
 	_update_all_visuals()
-	
+
 	EventBus.tick_completed.connect(_on_tick_completed)
 	EventBus.simulation_reset.connect(_on_simulation_reset)
-	
+	EventBus.simulation_state_changed.connect(_on_simulation_state_changed)
+
 	Debug.log_section("CONTROLS")
 	Debug.log_info("Main", "SPACE = Step | P = Play/Pause | R = Reset | 1/2/3 = Speed")
+	Debug.log_info("Main", "Or use the UI buttons at the bottom of the screen")
 
 
 func _create_game_entities() -> void:
@@ -156,6 +167,27 @@ func _create_ball_visual() -> void:
 	add_child(ball_visual)
 
 
+func _setup_ui_buttons() -> void:
+	# Get button references
+	start_pause_button = $UI/Controls/StartPauseButton
+	step_button = $UI/Controls/StepButton
+	reset_button = $UI/Controls/ResetButton
+	speed_1_button = $UI/Controls/Speed1Button
+	speed_2_button = $UI/Controls/Speed2Button
+	speed_4_button = $UI/Controls/Speed4Button
+
+	# Connect button signals
+	start_pause_button.pressed.connect(_on_start_pause_pressed)
+	step_button.pressed.connect(_on_step_pressed)
+	reset_button.pressed.connect(_on_reset_pressed)
+	speed_1_button.pressed.connect(func(): GameManager.set_speed(1.0))
+	speed_2_button.pressed.connect(func(): GameManager.set_speed(2.0))
+	speed_4_button.pressed.connect(func(): GameManager.set_speed(4.0))
+
+	# Set initial button state
+	_update_button_states()
+
+
 func _update_all_visuals() -> void:
 	for unit in home_team.units:
 		_update_unit_visual(unit, COLOR_HOME_TEAM, COLOR_HOME_BALL)
@@ -223,6 +255,53 @@ func _on_tick_completed(_tick: int) -> void:
 
 func _on_simulation_reset() -> void:
 	_update_all_visuals()
+
+
+func _on_start_pause_pressed() -> void:
+	match GameManager.state:
+		Enums.SimState.STOPPED:
+			GameManager.ready_simulation()
+			GameManager.start_simulation()
+			if MatchDirector.match_state == Enums.MatchState.PRE_MATCH:
+				MatchDirector.start_match()
+		Enums.SimState.READY:
+			GameManager.start_simulation()
+			if MatchDirector.match_state == Enums.MatchState.PRE_MATCH:
+				MatchDirector.start_match()
+		Enums.SimState.RUNNING:
+			GameManager.pause_simulation()
+		Enums.SimState.PAUSED:
+			GameManager.start_simulation()
+
+
+func _on_step_pressed() -> void:
+	if GameManager.state == Enums.SimState.STOPPED:
+		GameManager.ready_simulation()
+	GameManager.step_simulation()
+
+
+func _on_reset_pressed() -> void:
+	GameManager.reset_simulation()
+	MatchDirector.reset()
+	GameManager.ready_simulation()
+	_update_all_visuals()
+
+
+func _on_simulation_state_changed(_new_state: Enums.SimState, _old_state: Enums.SimState) -> void:
+	_update_button_states()
+
+
+func _update_button_states() -> void:
+	# Update Start/Pause button text based on current state
+	match GameManager.state:
+		Enums.SimState.STOPPED:
+			start_pause_button.text = "Start"
+		Enums.SimState.READY:
+			start_pause_button.text = "Start"
+		Enums.SimState.RUNNING:
+			start_pause_button.text = "Pause"
+		Enums.SimState.PAUSED:
+			start_pause_button.text = "Resume"
 
 
 func _process(_delta: float) -> void:
